@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Text Sync</title>
+    <style>
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="textInput" placeholder="Type something..."><%= sharedText %></textarea>
+
+    <!-- Socket.IO client library -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Connect to the Socket.IO server
+        const socket = io();
+
+        // Get the textarea element
+        const textInput = document.getElementById('textInput');
+
+        // Listen for changes in the textarea
+        textInput.addEventListener('input', () =>
+        {
+            // Send the updated text to the server
+            socket.emit('textChange', textInput.value);
+        });
+
+        // Listen for updates from the server
+        socket.on('updateText', (text) =>
+        {
+            // Update the textarea with the received text
+            textInput.value = text;
+        });
+    </script>
+</body>
+
+</html>
