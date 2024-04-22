@@ -1,4 +1,5 @@
 // Import required modules
+const { DiffieHellmanGroup } = require("crypto");
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
