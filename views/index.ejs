@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <textarea id="textInput" placeholder="Type something..."><%= sharedText %></textarea>
+    <textarea id="textInput"><%= text %></textarea>
 
     <!-- Socket.IO client library -->
     <script src="/socket.io/socket.io.js"></script>
@@ -28,15 +28,21 @@
         // Listen for changes in the textarea
         textInput.addEventListener('input', () =>
         {
-            // Send the updated text to the server
-            socket.emit('textChange', textInput.value);
+            // Send the updated text to the server with the URL key
+            const key = '<%= key %>';
+            const newText = textInput.value;
+            socket.emit('textChange', { key, newText });
         });
 
         // Listen for updates from the server
-        socket.on('updateText', (text) =>
+        socket.on('updateText', (data) =>
         {
-            // Update the textarea with the received text
-            textInput.value = text;
+            // Check if the update is for this URL key
+            if (data.key === '<%= key %>')
+            {
+                // Update the textarea with the received text
+                textInput.value = data.newText;
+            }
         });
     </script>
 </body>

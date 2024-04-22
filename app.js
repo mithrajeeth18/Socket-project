@@ -1,39 +1,48 @@
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
+const _ = require("lodash");
 
-// Initialize Express app and create a server
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-// Set up view engine
+const textData = {};
+
+
 app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
 
-// Serve static files from the 'public' directory
 app.use(express.static("public"));
 
-// Shared state to store the text
-let sharedText = "";
 
-// Render index.ejs template
-app.get("/", (req, res) => {
-  res.render("index", { sharedText });
+app.get("/:key", (req, res) => {
+  const key = req.params.key;
+
+  if (!textData[key]) {
+    textData[key] = "";
+  }
+  res.render("index", { text: textData[key], key });
 });
 
-io.on("connection", (socket) => {
-  socket.emit("updateText", sharedText);
 
-  socket.on("textChange", (text) => {
-    sharedText = text;
-    socket.broadcast.emit("updateText", text);
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+
+  socket.on("textChange", (data) => {
+    const { key, newText } = data;
+ 
+    textData[key] = newText;
+
+    socket.broadcast.emit("updateText", { key, newText });
   });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
 });
+
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
