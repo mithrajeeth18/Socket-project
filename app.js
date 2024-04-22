@@ -9,14 +9,12 @@ const io = socketIO(server);
 
 const textData = {};
 
-
 app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
 
 app.use(express.static("public"));
 
-
-app.get("/:key", (req, res) => {
+app.get("/:key?", (req, res) => {
   const key = req.params.key;
 
   if (!textData[key]) {
@@ -25,14 +23,12 @@ app.get("/:key", (req, res) => {
   res.render("index", { text: textData[key], key });
 });
 
-
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-
   socket.on("textChange", (data) => {
     const { key, newText } = data;
- 
+
     textData[key] = newText;
 
     socket.broadcast.emit("updateText", { key, newText });
@@ -42,7 +38,6 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
-
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
