@@ -1,5 +1,3 @@
-// Import required modules
-const { DiffieHellmanGroup } = require("crypto");
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
@@ -24,28 +22,19 @@ app.get("/", (req, res) => {
   res.render("index", { sharedText });
 });
 
-// Socket.IO connection event
 io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // Send current shared text to the newly connected client
   socket.emit("updateText", sharedText);
 
-  // Listen for 'textChange' event
   socket.on("textChange", (text) => {
-    // Update the shared text
     sharedText = text;
-    // Broadcast the updated text to all connected clients except the sender
     socket.broadcast.emit("updateText", text);
   });
 
-  // Handle disconnection
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
 });
 
-// Start the server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
